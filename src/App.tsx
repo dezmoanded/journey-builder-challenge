@@ -1,13 +1,43 @@
-import { useEffect, useState } from 'react'
-import { FormsList } from '@/features/forms'
-import type { GraphForm } from '@/features/forms'
-import { FieldsList } from '@/features/fields'
-import { prefillStore } from '@/features/fields'
-import type { FieldPrefillMapping, PrefillSelection } from '@/features/fields'
+import { useEffect, useMemo, useState } from 'react'
+import { FormsList } from './features/forms'
+import type { Graph, GraphForm } from './features/forms'
+import { FieldsList, prefillStore } from './features/fields'
+import type { FieldPrefillMapping, PrefillSelection } from './features/fields'
+import { createFormsApi } from './api'
+import './styles/ui.css'
 
 export default function App() {
+  const [graph, setGraph] = useState<Graph | null>(null)
+  const [error, setError] = useState<string | null>(null)
+
   const [selectedForm, setSelectedForm] = useState<GraphForm | null>(null)
   const [mappings, setMappings] = useState<FieldPrefillMapping>({})
+
+  const tenantId = (import.meta as any).env?.VITE_TENANT_ID ?? '123'
+  const blueprintId = (import.meta as any).env?.VITE_BLUEPRINT_ID ?? 'bp_456'
+
+  const api = useMemo(() => createFormsApi(), [])
+
+  // Fetch blueprint graph on load
+  useEffect(() => {
+    let active = true
+    setError(null)
+
+    api
+      .getBlueprintGraph(tenantId, blueprintId)
+      .then((g) => {
+        if (!active) return
+        setGraph(g)
+      })
+      .catch((e) => {
+        if (!active) return
+        setError(e instanceof Error ? e.message : String(e))
+      })
+
+    return () => {
+      active = false
+    }
+  }, [api, tenantId, blueprintId])
 
   // Load mappings whenever the selected form changes
   useEffect(() => {
@@ -36,24 +66,34 @@ export default function App() {
   }
 
   return (
-    <main style={{ padding: 16, fontFamily: 'system-ui, sans-serif' }}>
+    <main className="app">
       <h1>Journey Builder Challenge</h1>
 
       <section>
-        <h2 style={{ marginTop: 16 }}>Forms</h2>
-        <FormsList onSelect={setSelectedForm} />
+        <h2 className="section-title">Forms</h2>
+        {error ? (
+          <div role="alert" className="alert alert--error">
+            <p className="m-0 fw-600">Failed to load forms</p>
+            <pre className="pre-wrap">{error}</pre>
+            <small>
+              Using tenantId={String(tenantId)}, blueprintId={String(blueprintId)}
+            </small>
+          </div>
+        ) : graph ? (
+          <FormsList graph={graph} onSelect={setSelectedForm} />
+        ) : (
+          <p>Loading forms…</p>
+        )}
       </section>
 
       {selectedForm ? (
         <section>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <h2 style={{ marginTop: 16, marginBottom: 0 }}>
-              Fields for: {selectedForm.name || 'Untitled form'}
-            </h2>
+          <div className="row">
+            <h2 className="mt-16 mb-0">Fields for: {selectedForm.name || 'Untitled form'}</h2>
             <button
               type="button"
               onClick={() => setSelectedForm(null)}
-              style={{ marginTop: 16 }}
+              className="mt-16"
               aria-label="Clear selected form"
             >
               Clear selection
@@ -61,6 +101,7 @@ export default function App() {
           </div>
           <FieldsList
             form={selectedForm}
+            graph={graph ?? undefined}
             mappings={mappings}
             onUpdateMapping={handleUpdateMapping}
           />
