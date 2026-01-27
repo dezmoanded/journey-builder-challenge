@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
-import { createFormsApi } from './api'
+import '../../styles/ui.css'
+import { createFormsApi } from '../../api'
 import { getNodeName } from './GraphHelper'
 import type { Graph, GraphForm } from './types'
 
@@ -55,9 +56,9 @@ export function FormsList(props: FormsListProps) {
 
   if (error) {
     return (
-      <div role="alert" style={{ color: '#b00020' }}>
-        <p style={{ margin: 0, fontWeight: 600 }}>Failed to load forms</p>
-        <pre style={{ whiteSpace: 'pre-wrap' }}>{error}</pre>
+      <div role="alert" className="alert alert--error">
+        <p className="m-0 fw-600">Failed to load forms</p>
+        <pre className="pre-wrap">{error}</pre>
         <small>
           Using tenantId={tenantId}, blueprintId={blueprintId}
           {baseUrl ? `, baseUrl=${baseUrl}` : ''}
@@ -73,7 +74,7 @@ export function FormsList(props: FormsListProps) {
   const clickable = typeof props.onSelect === 'function'
 
   return (
-    <section aria-label="Forms list" style={{ display: 'grid', gap: 12 }}>
+    <section aria-label="Forms list" className="stack-lg">
       {forms.map((f) => {
         let displayName = f.name || 'Untitled form'
         if (graph) {
@@ -85,30 +86,18 @@ export function FormsList(props: FormsListProps) {
           }
         }
 
-        const cardStyle: React.CSSProperties = {
-          border: '1px solid #e5e7eb',
-          borderRadius: 8,
-          padding: 12,
-          background: '#fff',
-          boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
-        }
-
         if (clickable) {
           return (
             <button
               key={f.id}
               type="button"
               onClick={() => props.onSelect?.(f)}
-              style={{
-                ...cardStyle,
-                textAlign: 'left',
-                cursor: 'pointer',
-              }}
+              className="card card--clickable"
               aria-label={`Select form ${displayName}`}
             >
-              <h3 style={{ margin: '0 0 4px' }}>{displayName}</h3>
+              <h3 className="m-0 mb-4">{displayName}</h3>
               {f.description ? (
-                <p style={{ margin: '0 0 6px', color: '#4b5563' }}>{f.description}</p>
+                <p className="m-0 mb-6 text-muted">{f.description}</p>
               ) : null}
               <FormMeta form={f} />
             </button>
@@ -116,10 +105,10 @@ export function FormsList(props: FormsListProps) {
         }
 
         return (
-          <article key={f.id} style={cardStyle}>
-            <h3 style={{ margin: '0 0 4px' }}>{displayName}</h3>
+          <article key={f.id} className="card">
+            <h3 className="m-0 mb-4">{displayName}</h3>
             {f.description ? (
-              <p style={{ margin: '0 0 6px', color: '#4b5563' }}>{f.description}</p>
+              <p className="m-0 mb-6 text-muted">{f.description}</p>
             ) : null}
             <FormMeta form={f} />
           </article>
@@ -136,9 +125,9 @@ function FormMeta({ form }: { form: GraphForm }) {
   })()
 
   return (
-    <div style={{ fontSize: 12, color: '#6b7280' }}>
+    <div className="meta">
       <span>Fields: {fieldsCount}</span>
-      {form.is_reusable ? <span style={{ marginLeft: 8 }}>• Reusable</span> : null}
+      {form.is_reusable ? <span className="ml-8">• Reusable</span> : null}
     </div>
   )
 }

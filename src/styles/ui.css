@@ -1,0 +1,48 @@
+/* Reusable UI classes — keep it small, semantic, and DRY */
+
+/* Layout stacks */
+.stack { display: grid; gap: 8px; }
+.stack-lg { display: grid; gap: 12px; }
+.stack-sm { display: grid; gap: 6px; }
+
+/* Overlay + modal */
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); padding: 16px; z-index: 1000; }
+.overlay--center { display: flex; align-items: center; justify-content: center; }
+.modal { background: #fff; border-radius: 10px; padding: 16px; width: min(560px, 95vw); max-height: 80vh; overflow: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
+.modal__footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+
+/* Accordion */
+.accordion { border: 1px solid #e5e7eb; border-radius: 8px; }
+.accordion__trigger { width: 100%; text-align: left; background: #f9fafb; border: none; padding: 10px 12px; border-top-left-radius: 8px; border-top-right-radius: 8px; cursor: pointer; }
+.accordion__content { padding: 8px; }
+
+/* List items */
+.list-item { text-align: left; border: 1px solid #e5e7eb; background: #f3f4f6; color: #111827; padding: 8px 10px; border-radius: 6px; cursor: pointer; }
+.list-item.is-selected { border-color: #3b82f6; background: #dbeafe; }
+
+/* Buttons */
+.btn { padding: 8px 12px; border-radius: 6px; border: 1px solid #e5e7eb; background: #fff; color: #111827; cursor: pointer; }
+.btn--primary { background: #111827; color: #fff; border: none; }
+.btn--primary:disabled { background: #9ca3af; cursor: not-allowed; }
+.btn--secondary { background: #fff; color: #111827; }
+
+/* Cards */
+.card { border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+.card--clickable { text-align: left; cursor: pointer; }
+.card--muted { background: #f3f4f6; }
+
+/* Alerts */
+.alert { padding: 12px; border-radius: 6px; }
+.alert--error { color: #b00020; background: #fee2e2; border: 1px solid #fecaca; }
+
+/* Typography and spacing utilities */
+.m-0 { margin: 0; }
+.mb-4 { margin-bottom: 4px; }
+.mb-6 { margin-bottom: 6px; }
+.ml-8 { margin-left: 8px; }
+.text-muted { color: #6b7280; }
+.text-sm { font-size: 12px; }
+.fw-600 { font-weight: 600; }
+.pre-wrap { white-space: pre-wrap; }
+.p-8 { padding: 8px; }
+.meta { font-size: 12px; color: #6b7280; }

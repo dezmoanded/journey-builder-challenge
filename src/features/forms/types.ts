@@ -1,4 +1,14 @@
 // Types for the Forms Blueprint Graph API
+import type { JSONSchema } from '../fields/types'
+
+// Lightweight identifiers and summaries
+export type FormId = string
+export type FormSummary = {
+  id: FormId
+  name: string
+  description?: string
+  is_reusable?: boolean
+}
 
 export type Graph = {
   $schema: string
@@ -47,23 +57,6 @@ export type GraphForm = {
   field_schema: JSONSchema
   ui_schema: UISchema
   dynamic_field_config: Record<string, DynamicFieldConfig>
-}
-
-// Minimal JSON Schema subset used by the API
-export type JSONSchema = {
-  type: 'object'
-  properties: Record<string, JSONSchemaProperty>
-  required?: string[]
-}
-
-export type JSONSchemaProperty = {
-  type: string // 'string' | 'array' | 'object' | ...
-  title?: string
-  format?: string
-  enum?: any[] | null
-  items?: { type: string; enum?: any[] }
-  uniqueItems?: boolean
-  avantos_type?: string
 }
 
 export type UISchema = {
