@@ -31,7 +31,6 @@ export function FieldsList({ form, graph, mappings, onUpdateMapping }: FieldsLis
       const globals = await fetchGlobalDataSources()
       const formSources = graph ? getFormDataSources(graph, form.id) : []
       const combined: DataSource[] = [...globals, ...formSources]
-      console.log("[loadSources]", {combined})
       if (active.current) setDataSources(combined)
     } catch (e) {
       if (active.current) setSourcesError(e instanceof Error ? e.message : String(e))

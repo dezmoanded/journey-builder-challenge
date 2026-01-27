@@ -3,7 +3,7 @@ import type { Graph, GraphNode } from './types'
 import type { DataSource } from '../fields/types'
 
 function getNode(graph: Graph, formId: string): GraphNode | undefined {
-  if (graph && formId) {
+  if (graph && formId && graph.nodes) {
     return graph.nodes.find(node => formId == node.data.component_id)
   }
 }
@@ -25,7 +25,6 @@ export function getNodeName(graph: Graph, formId: string): string {
  * Returns the list of data sources available to the given form within the provided graph.
  */
 export function getFormDataSources(graph: Graph, formId: string): DataSource[] {
-  console.log("[getFormDataSources]", { graph, formId })
   return [...getDirectFormDataSources(graph, formId), ...getIndirectFormDataSources(graph, formId)]
 }
 
@@ -33,7 +32,6 @@ function getDirectFormDataSources(graph: Graph, formId: string): DataSource[] {
   const node = getNode(graph, formId)
   if (node) {
     const direct = findUpstreamNodes(graph, new Set([node]))
-    console.log("[getDirectFormDataSources]", { direct })
     return Array.from(direct).flatMap(node => {
       const ds = dataSourceFromNode(graph, node)
       return ds ? [ds] : []
@@ -81,7 +79,7 @@ function dataSourceFromNode(graph: Graph, node: GraphNode): DataSource | undefin
   const form = graph.forms.find(form => form.id == node.data.component_id)
   if (form) {
     return {
-      id: form.id,
+      id: node.id,
       name: node.data.name,
       type: 'form',
       fields: form.field_schema.properties,

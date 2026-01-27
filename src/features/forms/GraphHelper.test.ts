@@ -137,7 +137,7 @@ describe('GraphHelper.getFormDataSources', () => {
     expect(sources.length).toBe(1) // only Form A should be included
 
     const ds = sources[0]
-    expect(ds).toMatchObject({ id: 'form-a', name: 'Form A Node', type: 'form' })
+    expect(ds).toMatchObject({ id: 'node-a', name: 'Form A Node', type: 'form' })
     // ensure fields are mapped from the upstream form's field_schema
     expect(Object.keys(ds.fields).sort()).toEqual(['age', 'first_name'])
     expect(ds.fields.first_name.type).toBe('string')
@@ -147,7 +147,7 @@ describe('GraphHelper.getFormDataSources', () => {
     const graph = makeGraph()
     const sources = getFormDataSources(graph, 'form-b')
     // We already asserted length 1 above; reiterate here in case tests are split
-    expect(sources.map((s) => s.id)).toEqual(['form-a'])
+    expect(sources.map((s) => s.id)).toEqual(['node-a'])
   })
 
   it('returns an empty list when the form has no upstream form nodes', () => {
