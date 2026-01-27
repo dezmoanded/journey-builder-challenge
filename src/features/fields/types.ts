@@ -37,8 +37,8 @@ export type PrefillSelection = {
   sourceFieldKey: string
 }
 
-// Map of a form's field keys to the selected data source field
+// Map of a node's field keys to the selected data source field
 export type FieldPrefillMapping = Record<FieldKey, PrefillSelection>
 
-// Top-level map of form id -> field mappings
-export type PrefillMappingsByForm = Record<string, FieldPrefillMapping>
+// Top-level map of node id -> field mappings
+export type PrefillMappingsByNode = Record<string, FieldPrefillMapping>

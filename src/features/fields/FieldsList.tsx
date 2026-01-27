@@ -1,21 +1,22 @@
 import { useEffect, useState } from 'react'
-import type { Graph, GraphForm } from '../forms'
+import type { Graph, GraphNode } from '../forms'
 import type { DataSource, PrefillSelection, FieldPrefillMapping } from './types'
 import { getFormDataSources } from '../forms/GraphHelper'
 import { fetchGlobalDataSources } from '../../api'
 import '../../styles/ui.css'
 
 export type FieldsListProps = {
-  form: GraphForm
+  node: GraphNode
   graph?: Graph
-  // Current mappings for this form (optional for now)
+  // Current mappings for this node (optional for now)
   mappings?: FieldPrefillMapping
-  // Callback to update mapping for a given field on this form
+  // Callback to update mapping for a given field on this node
   onUpdateMapping?: (fieldKey: string, selection: PrefillSelection | null) => void
 }
 
-export function FieldsList({ form, graph, mappings, onUpdateMapping }: FieldsListProps) {
-  const properties = (form.field_schema as any)?.properties ?? {}
+export function FieldsList({ node, graph, mappings, onUpdateMapping }: FieldsListProps) {
+  const form = graph?.forms?.find((f) => f.id === node.data?.component_id)
+  const properties = (form?.field_schema as any)?.properties ?? {}
   const keys = Object.keys(properties)
 
   const [showPrefill, setShowPrefill] = useState(false)
@@ -29,7 +30,7 @@ export function FieldsList({ form, graph, mappings, onUpdateMapping }: FieldsLis
   async function loadSources(active: { current: boolean }) {
     try {
       const globals = await fetchGlobalDataSources()
-      const formSources = graph ? getFormDataSources(graph, form.id) : []
+      const formSources = graph && form ? getFormDataSources(graph, node) : []
       const combined: DataSource[] = [...globals, ...formSources]
       if (active.current) setDataSources(combined)
     } catch (e) {
@@ -48,7 +49,7 @@ export function FieldsList({ form, graph, mappings, onUpdateMapping }: FieldsLis
     return () => {
       active.current = false
     }
-  }, [showPrefill, graph, form.id])
+  }, [showPrefill, graph, node.id])
 
   // If there are mapped fields, prefetch sources to resolve names for display
   useEffect(() => {
@@ -62,12 +63,12 @@ export function FieldsList({ form, graph, mappings, onUpdateMapping }: FieldsLis
     return () => {
       active.current = false
     }
-  }, [hasMapped, graph, form.id, dataSources.length])
+  }, [hasMapped, graph, node.id, dataSources.length])
 
   if (!keys.length) {
     return (
       <section aria-label="Fields list">
-        <p>No fields defined for this form.</p>
+        <p>No fields defined for this node.</p>
       </section>
     )
   }

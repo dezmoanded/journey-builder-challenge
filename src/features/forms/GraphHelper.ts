@@ -2,64 +2,55 @@
 import type { Graph, GraphNode } from './types'
 import type { DataSource } from '../fields/types'
 
-function getNode(graph: Graph, formId: string): GraphNode | undefined {
-  if (graph && formId && graph.nodes) {
-    return graph.nodes.find(node => formId == node.data.component_id)
-  }
-}
+// function getNode(graph: Graph, formId: string): GraphNode | undefined {
+//   if (graph && formId && graph.nodes) {
+//     return graph.nodes.find(node => formId == node.data.component_id)
+//   }
+// }
 
 /**
  * Returns the display name for the node that corresponds to the given form ID.
  */
-export function getNodeName(graph: Graph, formId: string): string {
-  if (graph && formId) {
-    const matched = getNode(graph, formId)
-    const name = matched?.data?.name
-    if (name) return name
-  }
+// export function getNodeName(graph: Graph, formId: string): string {
+//   if (graph && formId) {
+//     const matched = getNode(graph, formId)
+//     const name = matched?.data?.name
+//     if (name) return name
+//   }
 
-  return formId
-}
+//   return formId
+// }
 
 /**
  * Returns the list of data sources available to the given form within the provided graph.
  */
-export function getFormDataSources(graph: Graph, formId: string): DataSource[] {
-  return [...getDirectFormDataSources(graph, formId), ...getIndirectFormDataSources(graph, formId)]
+export function getFormDataSources(graph: Graph, node: GraphNode): DataSource[] {
+  return [...getDirectFormDataSources(graph, node), ...getIndirectFormDataSources(graph, node)]
 }
 
-function getDirectFormDataSources(graph: Graph, formId: string): DataSource[] {
-  const node = getNode(graph, formId)
-  if (node) {
-    const direct = findUpstreamNodes(graph, new Set([node]))
-    return Array.from(direct).flatMap(node => {
-      const ds = dataSourceFromNode(graph, node)
-      return ds ? [ds] : []
-    })
-  }
-  return []
+function getDirectFormDataSources(graph: Graph, node: GraphNode): DataSource[] {
+  const direct = findUpstreamNodes(graph, new Set([node]))
+  return Array.from(direct).flatMap(node => {
+    const ds = dataSourceFromNode(graph, node)
+    return ds ? [ds] : []
+  })
 }
 
-function getIndirectFormDataSources(graph: Graph, formId: string): DataSource[] {
-  const node = getNode(graph, formId)
-  if (node) {
-    let next = findUpstreamNodes(graph, new Set([node]))
-    let depth = 0
-    const results = new Set<GraphNode>()
-    while (next.size > 0 && depth < 30) {
-      next = findUpstreamNodes(graph, next)
-      for (const n of next) {
-        results.add(n)
-      }
-      depth += 1
+function getIndirectFormDataSources(graph: Graph, node: GraphNode): DataSource[] {
+  let next = findUpstreamNodes(graph, new Set([node]))
+  let depth = 0
+  const results = new Set<GraphNode>()
+  while (next.size > 0 && depth < 30) {
+    next = findUpstreamNodes(graph, next)
+    for (const n of next) {
+      results.add(n)
     }
-    return Array.from(results).flatMap(n => {
-      const ds = dataSourceFromNode(graph, n)
-      return ds ? [ds] : []
-    })
+    depth += 1
   }
-
-  return []
+  return Array.from(results).flatMap(n => {
+    const ds = dataSourceFromNode(graph, n)
+    return ds ? [ds] : []
+  })
 }
 
 function findUpstreamNodes(graph: Graph, nodes: Set<GraphNode>): Set<GraphNode> {

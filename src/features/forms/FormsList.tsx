@@ -1,76 +1,44 @@
 import '../../styles/ui.css'
-import { getNodeName } from './GraphHelper'
-import type { Graph, GraphForm } from './types'
+import type { Graph, GraphNode } from './types'
 
 export type FormsListProps = {
-  graph?: Graph | null
-  onSelect?: (form: GraphForm) => void
+  graph: Graph
+  onSelect: (node: GraphNode) => void
 }
 
 export function FormsList({ graph, onSelect }: FormsListProps) {
-  const forms = Array.isArray(graph?.forms) ? graph!.forms : []
+  const nodes = graph.nodes || []
 
-  if (!forms.length) {
-    return <p>No forms found.</p>
+  if (!nodes.length) {
+    return (
+      <section aria-label="Forms list">
+        <p>No nodes found.</p>
+      </section>
+    )
   }
 
-  const clickable = typeof onSelect === 'function'
-
   return (
-    <section aria-label="Forms list" className="stack-lg">
-      {forms.map((f) => {
-        let displayName = f.name || 'Untitled form'
-        if (graph) {
-          try {
-            const computed = getNodeName(graph, f.id)
-            if (computed) displayName = computed
-          } catch {
-            // getNodeName may not be implemented; fall back silently
-          }
-        }
-
-        if (clickable) {
-          return (
-            <button
-              key={f.id}
-              type="button"
-              onClick={() => onSelect?.(f)}
-              className="card card--clickable"
-              aria-label={`Select form ${displayName}`}
-            >
-              <h3 className="m-0 mb-4">{displayName}</h3>
-              {f.description ? (
-                <p className="m-0 mb-6 text-muted">{f.description}</p>
-              ) : null}
-              <FormMeta form={f} />
-            </button>
-          )
-        }
+    <section aria-label="Forms list" className="grid">
+      {nodes.map((node) => {
+        // Only list nodes that are backed by a form component
+        const isFormNode = node?.data?.component_type === 'form'
+        if (!isFormNode) return null
 
         return (
-          <article key={f.id} className="card">
-            <h3 className="m-0 mb-4">{displayName}</h3>
-            {f.description ? (
-              <p className="m-0 mb-6 text-muted">{f.description}</p>
-            ) : null}
-            <FormMeta form={f} />
-          </article>
+          <button
+            key={node.id}
+            type="button"
+            onClick={() => onSelect(node)}
+            className="card card--clickable p-12"
+            aria-label={`Select ${node.data?.name || 'node'}`}
+            title={node.data?.name || 'Untitled node'}
+          >
+            <div className="row" style={{ justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 className="m-0">{node.data?.name || 'Untitled node'}</h3>
+            </div>
+          </button>
         )
       })}
     </section>
-  )
-}
-
-function FormMeta({ form }: { form: GraphForm }) {
-  const fieldsCount = (() => {
-    const props = form.field_schema?.properties ?? {}
-    return Object.keys(props).length
-  })()
-
-  return (
-    <div className="meta">
-      <span>Fields: {fieldsCount}</span>
-      {form.is_reusable ? <span className="ml-8">• Reusable</span> : null}
-    </div>
   )
 }

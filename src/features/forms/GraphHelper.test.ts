@@ -2,6 +2,44 @@ import { describe, it, expect } from 'vitest'
 import { getNodeName, getFormDataSources } from './GraphHelper'
 import type { Graph } from './types'
 
+const nodeA = {
+  id: 'node-a',
+  type: 'form',
+  position: { x: 0, y: 0 },
+  data: {
+    id: 'node-a',
+    component_key: 'form',
+    component_type: 'form',
+    component_id: 'form-a',
+    name: 'Form A Node',
+    prerequisites: [],
+    permitted_roles: [],
+    input_mapping: {},
+    sla_duration: { number: 0, unit: 'minutes' },
+    approval_required: false,
+    approval_roles: [],
+  },
+}
+
+const nodeB = {
+  id: 'node-b',
+  type: 'form',
+  position: { x: 100, y: 0 },
+  data: {
+    id: 'node-b',
+    component_key: 'form',
+    component_type: 'form',
+    component_id: 'form-b',
+    name: 'Form B Node',
+    prerequisites: [],
+    permitted_roles: [],
+    input_mapping: {},
+    sla_duration: { number: 0, unit: 'minutes' },
+    approval_required: false,
+    approval_roles: [],
+  },
+}
+
 function makeGraph(): Graph {
   return {
     $schema: 'https://example.com/schema',
@@ -11,42 +49,8 @@ function makeGraph(): Graph {
     description: 'Graph for tests',
     category: 'test',
     nodes: [
-      {
-        id: 'node-a',
-        type: 'form',
-        position: { x: 0, y: 0 },
-        data: {
-          id: 'node-a',
-          component_key: 'form',
-          component_type: 'form',
-          component_id: 'form-a',
-          name: 'Form A Node',
-          prerequisites: [],
-          permitted_roles: [],
-          input_mapping: {},
-          sla_duration: { number: 0, unit: 'minutes' },
-          approval_required: false,
-          approval_roles: [],
-        },
-      },
-      {
-        id: 'node-b',
-        type: 'form',
-        position: { x: 100, y: 0 },
-        data: {
-          id: 'node-b',
-          component_key: 'form',
-          component_type: 'form',
-          component_id: 'form-b',
-          name: 'Form B Node',
-          prerequisites: [],
-          permitted_roles: [],
-          input_mapping: {},
-          sla_duration: { number: 0, unit: 'minutes' },
-          approval_required: false,
-          approval_roles: [],
-        },
-      },
+      nodeA,
+      nodeB,
       {
         id: 'node-x',
         type: 'task',
@@ -117,22 +121,10 @@ function makeGraph(): Graph {
   }
 }
 
-describe('GraphHelper.getNodeName', () => {
-  it('returns the node display name for a form when a matching node exists', () => {
-    const graph = makeGraph()
-    expect(getNodeName(graph, 'form-b')).toBe('Form B Node')
-  })
-
-  it('falls back to the form name when a matching node does not exist', () => {
-    const graph = makeGraph()
-    expect(getNodeName(graph, 'form-c')).toBe('form-c')
-  })
-})
-
 describe('GraphHelper.getFormDataSources', () => {
   it('returns upstream form nodes as DataSources with fields and type="form"', () => {
     const graph = makeGraph()
-    const sources = getFormDataSources(graph, 'form-b')
+    const sources = getFormDataSources(graph, nodeB)
     expect(Array.isArray(sources)).toBe(true)
     expect(sources.length).toBe(1) // only Form A should be included
 
@@ -145,14 +137,14 @@ describe('GraphHelper.getFormDataSources', () => {
 
   it('ignores non-form upstream nodes and de-duplicates sources', () => {
     const graph = makeGraph()
-    const sources = getFormDataSources(graph, 'form-b')
+    const sources = getFormDataSources(graph, nodeB)
     // We already asserted length 1 above; reiterate here in case tests are split
     expect(sources.map((s) => s.id)).toEqual(['node-a'])
   })
 
   it('returns an empty list when the form has no upstream form nodes', () => {
     const graph = makeGraph()
-    const sources = getFormDataSources(graph, 'form-a')
+    const sources = getFormDataSources(graph, nodeA)
     expect(sources).toEqual([])
   })
 })

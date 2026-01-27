@@ -1,4 +1,6 @@
-# Demo Site (Vite + React + TypeScript)
+# Journey Builder Challenge
+
+Video: [https://drive.google.com/file/d/1Am0gRyhVM0xTXJSdBFUqam0Qbs2zoxwK/view?usp=sharing](https://drive.google.com/file/d/1Am0gRyhVM0xTXJSdBFUqam0Qbs2zoxwK/view?usp=sharing)
 
 A small demo scaffolded like a production app: testing (Vitest + RTL), linting (ESLint), and formatting (Prettier). No CI or E2E included per scope.
 

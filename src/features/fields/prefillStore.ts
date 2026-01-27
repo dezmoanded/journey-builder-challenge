@@ -2,15 +2,15 @@
 // Keeps persistence concerns separated from UI components
 
 import type {
-  PrefillMappingsByForm,
+  PrefillMappingsByNode,
   FieldPrefillMapping,
   PrefillSelection,
 } from './types'
 
-const STORAGE_KEY = 'prefillMappings'
+const STORAGE_KEY = 'prefillMappingsByNode'
 
 // In-memory fallback for non-browser/test environments
-let memoryStore: PrefillMappingsByForm = {}
+let memoryStore: PrefillMappingsByNode = {}
 
 function hasLocalStorage(): boolean {
   try {
@@ -20,19 +20,19 @@ function hasLocalStorage(): boolean {
   }
 }
 
-function readAll(): PrefillMappingsByForm {
+function readAll(): PrefillMappingsByNode {
   if (!hasLocalStorage()) return memoryStore
   const raw = window.localStorage.getItem(STORAGE_KEY)
   if (!raw) return {}
   try {
     const parsed = JSON.parse(raw)
-    return (parsed ?? {}) as PrefillMappingsByForm
+    return (parsed ?? {}) as PrefillMappingsByNode
   } catch {
     return {}
   }
 }
 
-function writeAll(data: PrefillMappingsByForm): void {
+function writeAll(data: PrefillMappingsByNode): void {
   if (!hasLocalStorage()) {
     memoryStore = data
     return
@@ -46,50 +46,50 @@ function writeAll(data: PrefillMappingsByForm): void {
 
 export const prefillStore = {
   // Read complete mapping object
-  getAll(): PrefillMappingsByForm {
+  getAll(): PrefillMappingsByNode {
     return readAll()
   },
 
   // Replace complete mapping object
-  setAll(mappings: PrefillMappingsByForm): void {
+  setAll(mappings: PrefillMappingsByNode): void {
     writeAll(mappings)
   },
 
-  // Get mappings for a specific form
-  getForForm(formId: string): FieldPrefillMapping {
+  // Get mappings for a specific node
+  getForNode(nodeId: string): FieldPrefillMapping {
     const all = readAll()
-    return all[formId] ?? {}
+    return all[nodeId] ?? {}
   },
 
-  // Overwrite mappings for a specific form
-  setForForm(formId: string, mappings: FieldPrefillMapping): void {
+  // Overwrite mappings for a specific node
+  setForNode(nodeId: string, mappings: FieldPrefillMapping): void {
     const all = readAll()
-    all[formId] = { ...mappings }
+    all[nodeId] = { ...mappings }
     writeAll(all)
   },
 
-  // Set/replace a single field mapping for a form
-  set(formId: string, fieldKey: string, selection: PrefillSelection): void {
+  // Set/replace a single field mapping for a node
+  set(nodeId: string, fieldKey: string, selection: PrefillSelection): void {
     const all = readAll()
-    const formMappings = all[formId] ?? {}
-    formMappings[fieldKey] = { ...selection }
-    all[formId] = formMappings
+    const nodeMappings = all[nodeId] ?? {}
+    nodeMappings[fieldKey] = { ...selection }
+    all[nodeId] = nodeMappings
     writeAll(all)
   },
 
-  // Remove a field mapping for a form
-  remove(formId: string, fieldKey: string): void {
+  // Remove a field mapping for a node
+  remove(nodeId: string, fieldKey: string): void {
     const all = readAll()
-    const formMappings = all[formId]
-    if (!formMappings) return
-    if (fieldKey in formMappings) {
-      delete formMappings[fieldKey]
-      all[formId] = formMappings
+    const nodeMappings = all[nodeId]
+    if (!nodeMappings) return
+    if (fieldKey in nodeMappings) {
+      delete nodeMappings[fieldKey]
+      all[nodeId] = nodeMappings
       writeAll(all)
     }
   },
 
-  // Clear all mappings (for all forms)
+  // Clear all mappings (for all nodes)
   clear(): void {
     writeAll({})
   },

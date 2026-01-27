@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { FormsList } from './features/forms'
-import type { Graph, GraphForm } from './features/forms'
+import type { Graph, GraphNode } from './features/forms'
 import { FieldsList, prefillStore } from './features/fields'
 import type { FieldPrefillMapping, PrefillSelection } from './features/fields'
 import { createFormsApi } from './api'
@@ -10,7 +10,7 @@ export default function App() {
   const [graph, setGraph] = useState<Graph | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  const [selectedForm, setSelectedForm] = useState<GraphForm | null>(null)
+  const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null)
   const [mappings, setMappings] = useState<FieldPrefillMapping>({})
 
   const tenantId = (import.meta as any).env?.VITE_TENANT_ID ?? '123'
@@ -39,24 +39,24 @@ export default function App() {
     }
   }, [api, tenantId, blueprintId])
 
-  // Load mappings whenever the selected form changes
+  // Load mappings whenever the selected node changes
   useEffect(() => {
-    if (!selectedForm) {
+    if (!selectedNode) {
       setMappings({})
       return
     }
-    const next = prefillStore.getForForm(selectedForm.id)
+    const next = prefillStore.getForNode(selectedNode.id)
     setMappings(next)
-  }, [selectedForm?.id])
+  }, [selectedNode?.id])
 
   const handleUpdateMapping = (fieldKey: string, selection: PrefillSelection | null) => {
-    if (!selectedForm) return
-    const formId = selectedForm.id
+    if (!selectedNode) return
+    const nodeId = selectedNode.id
     if (selection) {
-      prefillStore.set(formId, fieldKey, selection)
+      prefillStore.set(nodeId, fieldKey, selection)
       setMappings((prev) => ({ ...prev, [fieldKey]: selection }))
     } else {
-      prefillStore.remove(formId, fieldKey)
+      prefillStore.remove(nodeId, fieldKey)
       setMappings((prev) => {
         const copy = { ...prev }
         delete copy[fieldKey]
@@ -80,27 +80,27 @@ export default function App() {
             </small>
           </div>
         ) : graph ? (
-          <FormsList graph={graph} onSelect={setSelectedForm} />
+          <FormsList graph={graph} onSelect={setSelectedNode} />
         ) : (
           <p>Loading forms…</p>
         )}
       </section>
 
-      {selectedForm ? (
+      {selectedNode ? (
         <section>
           <div className="row">
-            <h2 className="mt-16 mb-0">Fields for: {selectedForm.name || 'Untitled form'}</h2>
+            <h2 className="mt-16 mb-0">Fields for: {selectedNode.data?.name || 'Untitled node'}</h2>
             <button
               type="button"
-              onClick={() => setSelectedForm(null)}
+              onClick={() => setSelectedNode(null)}
               className="mt-16"
-              aria-label="Clear selected form"
+              aria-label="Clear selected node"
             >
               Clear selection
             </button>
           </div>
           <FieldsList
-            form={selectedForm}
+            node={selectedNode}
             graph={graph ?? undefined}
             mappings={mappings}
             onUpdateMapping={handleUpdateMapping}
