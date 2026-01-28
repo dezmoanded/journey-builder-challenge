@@ -3,7 +3,7 @@
 - Video: https://drive.google.com/file/d/1Am0gRyhVM0xTXJSdBFUqam0Qbs2zoxwK/view?usp=sharing
 
 What this implements
-- Fetch blueprint graph from the mock server and render a simple list of forms (no DAG UI required).
+- Fetch blueprint graph from the mock server and render a simple list of forms.
 - Select a form to view its fields and configure prefill mappings.
 - Map from three data source types: direct upstream forms, transitive upstream forms, and global data. Clear a mapping with the X button.
 
@@ -23,11 +23,6 @@ Testing and scripts
 - npm run lint        # ESLint
 - npm run format      # Prettier
 - npm run build / npm run preview
-
-Configuration notes
-- API base URL: VITE_API_BASE_URL (default http://localhost:3000)
-- Graph fetch: GET /api/v1/:tenantId/actions/blueprints/:blueprintId/graph
-- Tenant/blueprint: VITE_TENANT_ID (default 123), VITE_BLUEPRINT_ID (default bp_456)
 
 Extending data sources (how to add new ones)
 - Data source contract: see src/features/fields/types.ts (type DataSource)
