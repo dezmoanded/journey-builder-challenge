@@ -2,25 +2,6 @@
 import type { Graph, GraphNode } from './types'
 import type { DataSource } from '../fields/types'
 
-// function getNode(graph: Graph, formId: string): GraphNode | undefined {
-//   if (graph && formId && graph.nodes) {
-//     return graph.nodes.find(node => formId == node.data.component_id)
-//   }
-// }
-
-/**
- * Returns the display name for the node that corresponds to the given form ID.
- */
-// export function getNodeName(graph: Graph, formId: string): string {
-//   if (graph && formId) {
-//     const matched = getNode(graph, formId)
-//     const name = matched?.data?.name
-//     if (name) return name
-//   }
-
-//   return formId
-// }
-
 /**
  * Returns the list of data sources available to the given form within the provided graph.
  */

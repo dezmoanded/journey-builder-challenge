@@ -26,8 +26,29 @@ function apiMockFactory() {
           approval_roles: [],
         },
       },
+      {
+        id: 'node-2',
+        type: 'form',
+        position: { x: -100, y: -100 },
+        data: {
+          id: 'node-2',
+          component_key: 'form_two',
+          component_type: 'form',
+          component_id: 'form-2',
+          name: 'Form Two',
+          prerequisites: [],
+          permitted_roles: [],
+          input_mapping: {},
+          sla_duration: { number: 0, unit: 's' },
+          approval_required: false,
+          approval_roles: [],
+        },
+      },
     ],
-    edges: [],
+    // node-2 (Form Two) feeds into node-1 (Form One)
+    edges: [
+      { id: 'e-2-1', source: 'node-2', target: 'node-1' },
+    ],
     forms: [
       {
         id: 'form-1',
@@ -39,6 +60,21 @@ function apiMockFactory() {
           properties: {
             first_name: { type: 'string', title: 'First name' },
             email: { type: 'string', title: 'Email' },
+          },
+        },
+        ui_schema: { type: 'VerticalLayout', elements: [] },
+        dynamic_field_config: {},
+      },
+      {
+        id: 'form-2',
+        name: 'Form Two',
+        description: 'Upstream form with fields to map from',
+        is_reusable: false,
+        field_schema: {
+          type: 'object',
+          properties: {
+            company_name: { type: 'string', title: 'Company Name' },
+            employee_count: { type: 'number', title: 'Employee Count' },
           },
         },
         ui_schema: { type: 'VerticalLayout', elements: [] },
@@ -76,7 +112,7 @@ beforeEach(() => {
 })
 
 describe('App integration: select form -> open fields -> map field', () => {
-  it('clicking a form shows its fields; clicking a field opens modal; selecting updates the label', async () => {
+  it('clicking a form shows its fields; clicking a field opens modal; selecting from a global data source updates the label', async () => {
     const user = userEvent.setup()
     render(<App />)
 
@@ -94,7 +130,7 @@ describe('App integration: select form -> open fields -> map field', () => {
     // Click the field to open the modal
     await user.click(firstNameBtn)
 
-    // Modal appears; expand the data source
+    // Modal appears; expand the global data source
     const dialog = await screen.findByRole('dialog', { name: /select data element to map/i })
     const dsToggle = await within(dialog).findByRole('button', {
       name: /action properties/i,
@@ -111,6 +147,49 @@ describe('App integration: select form -> open fields -> map field', () => {
     await waitFor(() => {
       expect(
         screen.getByText(/first_name: action properties\.action_id/i)
+      ).toBeInTheDocument()
+    })
+  })
+
+  it('maps a field from a form data source and then clears the mapping', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    // Select the downstream form (Form One)
+    const formsRegion = await screen.findByRole('region', { name: /forms list/i })
+    const [selectFormBtn] = within(formsRegion).getAllByRole('button', { name: /select form/i })
+    await user.click(selectFormBtn)
+
+    // Open configure for email
+    const emailBtn = await screen.findByRole('button', {
+      name: /configure prefill for email/i,
+    })
+    await user.click(emailBtn)
+
+    // Modal appears; expand the upstream form data source (Form Two)
+    const dialog = await screen.findByRole('dialog', { name: /select data element to map/i })
+    const formTwoToggle = await within(dialog).findByRole('button', { name: /form two/i })
+    await user.click(formTwoToggle)
+
+    // Choose a field from Form Two and confirm
+    const companyBtn = await within(dialog).findByRole('button', { name: /company name/i })
+    await user.click(companyBtn)
+    const selectBtn = await within(dialog).findByRole('button', { name: /select/i })
+    await user.click(selectBtn)
+
+    // Assert mapped label reflects the form DS name and field key
+    await waitFor(() => {
+      expect(
+        screen.getByText(/email: form two\.company_name/i)
+      ).toBeInTheDocument()
+    })
+
+    // Clear the mapping and verify it returns to unmapped state
+    const clearBtn = await screen.findByRole('button', { name: /clear mapping for email/i })
+    await user.click(clearBtn)
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: /configure prefill for email/i })
       ).toBeInTheDocument()
     })
   })
