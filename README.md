@@ -1,55 +1,42 @@
-# Journey Builder Challenge
+# Journey Builder React Coding Challenge
 
-Video: [https://drive.google.com/file/d/1Am0gRyhVM0xTXJSdBFUqam0Qbs2zoxwK/view?usp=sharing](https://drive.google.com/file/d/1Am0gRyhVM0xTXJSdBFUqam0Qbs2zoxwK/view?usp=sharing)
+- Video: https://drive.google.com/file/d/1Am0gRyhVM0xTXJSdBFUqam0Qbs2zoxwK/view?usp=sharing
 
-A small demo scaffolded like a production app: testing (Vitest + RTL), linting (ESLint), and formatting (Prettier). No CI or E2E included per scope.
+What this implements
+- Fetch blueprint graph from the mock server and render a simple list of forms (no DAG UI required).
+- Select a form to view its fields and configure prefill mappings.
+- Map from three data source types: direct upstream forms, transitive upstream forms, and global data. Clear a mapping with the X button.
 
-## Requirements
-- Node.js 18+ (Vite 5 compatible)
-- npm (or use pnpm/yarn and adjust commands)
+Quick start
+1) Prereqs: Node 18+ and npm
+2) Start the mock API server (required)
+   - Repo: https://github.com/mosaic-avantos/frontendchallengeserver
+   - Follow its README to run it locally, and ensure it’s reachable at http://localhost:3000
+3) Install and run the app
+   - npm install
+   - npm run dev
+   - Open http://localhost:5173
 
-## Get Started
-```sh
-npm install
-npm run dev
-```
-Visit http://localhost:5173
+Testing and scripts
+- npm run test        # run tests once (Vitest + React Testing Library)
+- npm run test:watch  # watch mode
+- npm run lint        # ESLint
+- npm run format      # Prettier
+- npm run build / npm run preview
 
-## Scripts
-- dev: Start Vite dev server
-- build: Type-check then build for production
-- preview: Preview the production build locally
-- test: Run unit tests once
-- test:watch: Run unit tests in watch mode
-- lint: Lint source files
-- format: Format files with Prettier
+Configuration notes
+- API base URL: VITE_API_BASE_URL (default http://localhost:3000)
+- Graph fetch: GET /api/v1/:tenantId/actions/blueprints/:blueprintId/graph
+- Tenant/blueprint: VITE_TENANT_ID (default 123), VITE_BLUEPRINT_ID (default bp_456)
 
-## Project Structure
-```
-src/
-  App.tsx
-  main.tsx
-  setupTests.ts
-  components/
-    Counter.tsx
-    Counter.test.tsx
-```
+Extending data sources (how to add new ones)
+- Data source contract: see src/features/fields/types.ts (type DataSource)
+- Current providers:
+  - Upstream forms: src/features/forms/GraphHelper.ts#getFormDataSources(graph, node)
+  - Global data: src/api/index.ts#fetchGlobalDataSources()
+- To add a new source, implement a provider that returns DataSource[] and compose it where the field mapping UI gathers sources (FieldsList). No UI changes are required as long as you return DataSource objects.
 
-- Path alias: `@` -> `src` (use like `import { X } from '@/components/X'`)
-- Vitest uses jsdom and loads `src/setupTests.ts` (adds jest-dom matchers)
-
-## Testing
-```sh
-npm run test        # run once
-npm run test:watch  # watch mode
-```
-
-## Linting & Formatting
-```sh
-npm run lint
-npm run format
-```
-
-## Notes
-- Keep components small and colocate tests next to them for discoverability.
-- Expand structure (features/, pages/, lib/) as the demo grows.
+Patterns
+- Separation into modules under features/ (forms and fields), public interfaces and types exposed in index.ts
+- Data models and hooks are passed into composable UI components (FormsList, FieldsList, PrefillModal). Coordination logic is handled at the top level.
+- Integration tests, API client tests, and tests for graph traversal logic (GraphHelper).
