@@ -30,7 +30,7 @@ export function FormsList({ graph, onSelect }: FormsListProps) {
             type="button"
             onClick={() => onSelect(node)}
             className="card card--clickable p-12"
-            aria-label={`Select ${node.data?.name || 'node'}`}
+            aria-label={`Select form ${node.data?.name || 'Untitled node'}`}
             title={node.data?.name || 'Untitled node'}
           >
             <div className="row" style={{ justifyContent: 'space-between', alignItems: 'center' }}>

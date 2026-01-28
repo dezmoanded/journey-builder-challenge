@@ -6,6 +6,28 @@ import App from './App'
 // Use a function declaration (hoisted) and define all values inside the factory
 function apiMockFactory() {
   const graph = {
+    // Provide nodes to match node-centric UI (nodes reference backing forms)
+    nodes: [
+      {
+        id: 'node-1',
+        type: 'form',
+        position: { x: 0, y: 0 },
+        data: {
+          id: 'node-1',
+          component_key: 'form_one',
+          component_type: 'form',
+          component_id: 'form-1',
+          name: 'Form One',
+          prerequisites: [],
+          permitted_roles: [],
+          input_mapping: {},
+          sla_duration: { number: 0, unit: 's' },
+          approval_required: false,
+          approval_roles: [],
+        },
+      },
+    ],
+    edges: [],
     forms: [
       {
         id: 'form-1',

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { getNodeName, getFormDataSources } from './GraphHelper'
+import { getFormDataSources } from './GraphHelper'
 import type { Graph } from './types'
 
 const nodeA = {
